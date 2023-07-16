@@ -7,6 +7,7 @@ from rest_framework.routers import DefaultRouter
 urlpatterns = [
     path(r"student_list/",view=views.index,name="app01_index"),
     path(r"login/",view=views.LoginAPIView.as_view(),name="LoginAPIView"),
+    path(r"password/",view=views.PasswordMixinView.as_view(),name="PasswordMixinView"),
     
 ]
 

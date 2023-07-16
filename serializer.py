@@ -1,29 +1,11 @@
 from rest_framework import serializers
 from app01.models import Student
 from app01.models import Imagetest
+from app01.models import Password
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import validators
 
-
-# class StudentSerializer(serializers.Serializer):
-#     name = serializers.CharField(allow_blank=True, max_length=20)
-#     age = serializers.IntegerField(min_value=0,max_value=100)
-    
-#     def create(self, validated_data):
-#         """
-#         Create and return a new `Snippet` instance, given the validated data.
-#         """
-#         return Student.objects.create(**validated_data)
-
-#     def update(self, instance, validated_data):
-#         """
-#         Update and return an existing `Snippet` instance, given the validated data.
-#         """
-#         instance.name = validated_data.get('name', instance.age)
-#         instance.age = validated_data.get('age', instance.age)
-#         instance.save()
-#         return instance
 
 class StudentSerializer(serializers.ModelSerializer):
     name = serializers.CharField(max_length=10,validators=[validators.UniqueValidator(queryset=Student.objects.all())])
@@ -44,3 +26,19 @@ class LoginSerializer(serializers.ModelSerializer):
     class Meta:
             model = User
             fields = ['username','password']
+            
+class PasswordSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+    password_1 = serializers.CharField()
+    password_2 = serializers.CharField()
+    class Meta:
+        model = Password
+        fields = ["name","password_1","password_2"]
+    def validate_password_1(self,value):
+        if value != self.initial_data['password_2']:
+            raise serializers.ValidationError(
+                'Passwords do not match'
+            )
+        else:
+            return value
+            

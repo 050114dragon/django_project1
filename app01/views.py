@@ -5,16 +5,29 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Student
-from .models import Imagetest
-from serializer import StudentSerializer
-from serializer import ImagetestSerializer
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from rest_framework.views import APIView
+from django.contrib.auth.models import User
+from rest_framework.response import Response
+from rest_framework.generics import GenericAPIView
+from rest_framework.mixins import ListModelMixin,CreateModelMixin
+
+from django.contrib.auth import authenticate
 # Create your views here.
+
+
+from .models import Student
+from .models import Imagetest
+from .models import Password
+from serializer import StudentSerializer
+from serializer import ImagetestSerializer
+from rest_framework import status
+from serializer import LoginSerializer
+from serializer import PasswordSerializer
 
 
 class StudentPagination(PageNumberPagination):
@@ -55,12 +68,6 @@ def get_tokens_for_user(user):
               "access": str(refresh.access_token)
               }
 
-from rest_framework.views import APIView
-from django.contrib.auth.models import User
-from rest_framework.response import Response
-from rest_framework import status
-from serializer import LoginSerializer
-from django.contrib.auth import authenticate
 class LoginAPIView(APIView):
     """This api will handle login and generate access and refresh token for authenticate user."""
     """
@@ -92,3 +99,15 @@ class LoginAPIView(APIView):
                  "data": serializer.errors
                  }
             return Response(response, status = status.HTTP_400_BAD_REQUEST)
+        
+
+class PasswordMixinView(ListModelMixin,CreateModelMixin,GenericAPIView):
+    queryset = Password.objects.all()
+    serializer_class = PasswordSerializer
+    def get(self, request):
+        return self.list(request)
+    def post(self,request):
+        self.create(request)
+        return Response(data={"message":"success","status":200},status=200)
+        
+        

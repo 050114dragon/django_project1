@@ -3,6 +3,7 @@ from app01.models import Student
 from app01.models import Imagetest
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
+from rest_framework import validators
 
 
 # class StudentSerializer(serializers.Serializer):
@@ -25,8 +26,8 @@ from django.contrib.auth.hashers import make_password
 #         return instance
 
 class StudentSerializer(serializers.ModelSerializer):
-    name = serializers.CharField(max_length=10)
-    age = serializers.IntegerField(min_value=0,max_value=10)
+    name = serializers.CharField(max_length=10,validators=[validators.UniqueValidator(queryset=Student.objects.all())])
+    age = serializers.IntegerField(min_value=0,max_value=100)
     class Meta:
         model = Student
         fields = ["id","name","age"]
@@ -42,4 +43,4 @@ class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField()
     class Meta:
             model = User
-            fields = ['username','password']        
+            fields = ['username','password']

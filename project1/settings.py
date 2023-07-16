@@ -164,7 +164,7 @@ LOGGING = {
 
 JWT_AUTH = {
     # 指明token的有效期
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=1),
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=60),
     # 允许刷新
     'JWT_ALLOW_REFRESH': True,
     # JWT头
@@ -220,9 +220,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 print(BASE_DIR)
 print(MEDIA_ROOT)
-
-
-
-
 
 

@@ -6,7 +6,6 @@ from rest_framework.routers import DefaultRouter
 
 urlpatterns = [
     path(r"student_list/",view=views.index,name="app01_index"),
-    # path(r"student_apiview/", views.StudentViewSet.as_view({"get":"list"}),name="app01_apiview")
 ]
 
 

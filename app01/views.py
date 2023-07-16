@@ -10,6 +10,7 @@ from .models import Imagetest
 from serializer import StudentSerializer
 from serializer import ImagetestSerializer
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 
 
@@ -24,6 +25,7 @@ def index(request):
 
 
 class StudentViewSet(ModelViewSet):
+    permission_classes = [IsAuthenticated]
     queryset = Student.objects.all()    
     serializer_class = StudentSerializer
 
@@ -39,9 +41,7 @@ class StudentPaginationViewSet(ModelViewSet):
     queryset = Student.objects.all()    
     serializer_class = StudentSerializer
     pagination_class = StudentPagination
-    
-
-        
+         
 
 
 

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
+import datetime
 
 
 
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     "app01.apps.App01Config",
     'rest_framework',
    'drf_yasg',
+   'rest_framework_simplejwt',
 ]
 
 
@@ -160,10 +162,22 @@ LOGGING = {
     }
 }
 
+JWT_AUTH = {
+    # 指明token的有效期
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=1),
+    # 允许刷新
+    'JWT_ALLOW_REFRESH': True,
+    # JWT头
+    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+    # 'JWT_SECRET_KEY': "emlYhMkNU38jXSRQdz7BCZFWxJr6DyaP",
+}
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_PERMISSION_CLASSES': [
         # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
     ]
@@ -206,5 +220,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 print(BASE_DIR)
 print(MEDIA_ROOT)
+
+
+
+
 
 

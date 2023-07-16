@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from app01.models import Student
 from app01.models import Imagetest
+from django.contrib.auth.models import User
+from django.contrib.auth.hashers import make_password
 
 
 # class StudentSerializer(serializers.Serializer):
@@ -35,3 +37,9 @@ class ImagetestSerializer(serializers.ModelSerializer):
     class Meta:
         model = Imagetest
         fields = ["id","name","image"]
+        
+class LoginSerializer(serializers.ModelSerializer):
+    username = serializers.CharField()
+    class Meta:
+            model = User
+            fields = ['username','password']        

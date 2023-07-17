@@ -179,7 +179,10 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': [
-        # 'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+        'rest_framework.permissions.IsAuthenticated',            # IsAuthenticated 仅通过认证的用户
+        # 'rest_framework.permissions.AllowAny',                   # AllowAny 允许所有用户
+        # 'rest_framework.permissions.IsAdminUser',                # IsAdminUser 仅管理员用户
+        # 'rest_framework.permissions.IsAuthenticatedOrReadOnly',  # IsAuthenticatedOrReadOnly 认证的用户可以完全操作，否则只能get读取
     ]
 }
 

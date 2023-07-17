@@ -15,8 +15,11 @@ from django.contrib.auth.models import User
 from rest_framework.response import Response
 from rest_framework.generics import GenericAPIView
 from rest_framework.mixins import ListModelMixin,CreateModelMixin
-
+from rest_framework.decorators import api_view
+from django.http.response import  JsonResponse
 from django.contrib.auth import authenticate
+from rest_framework import permissions
+from rest_framework.decorators import api_view, permission_classes
 # Create your views here.
 
 
@@ -35,7 +38,9 @@ class StudentPagination(PageNumberPagination):
     max_page_size = 50
     page_query_param = "page"
     page_size_query_param = "page_size"
-
+        
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
 def index(request):
     return HttpResponse("hello app01 index!")
 
@@ -73,32 +78,34 @@ class LoginAPIView(APIView):
     """
         登录接口
     """
+    authentication_classes = []
+    permission_classes = [permissions.AllowAny]
     def post(self,request):
-            serializer = LoginSerializer(data = request.data)
-            if serializer.is_valid():
-                    username = serializer.validated_data["username"]
-                    password = serializer.validated_data["password"]
-                    user = authenticate(request, username=username, password=password)
-                    if user is not None:
-                        res_data = get_tokens_for_user(User.objects.get(username=username))
-                        response = {
-                               "status": status.HTTP_200_OK,
-                               "message": "success",
-                               "data": res_data
-                               }
-                        return Response(response, status = status.HTTP_200_OK)
-                    else :
-                        response = {
-                               "status": status.HTTP_401_UNAUTHORIZED,
-                               "message": "Invalid Email or Password",
-                               }
-                        return Response(response, status = status.HTTP_401_UNAUTHORIZED)
-            response = {
-                 "status": status.HTTP_400_BAD_REQUEST,
-                 "message": "bad request",
-                 "data": serializer.errors
-                 }
-            return Response(response, status = status.HTTP_400_BAD_REQUEST)
+        serializer = LoginSerializer(data = request.data)
+        if serializer.is_valid():
+                username = serializer.validated_data["username"]
+                password = serializer.validated_data["password"]
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    res_data = get_tokens_for_user(User.objects.get(username=username))
+                    response = {
+                            "status": status.HTTP_200_OK,
+                            "message": "success",
+                            "data": res_data
+                            }
+                    return Response(response, status = status.HTTP_200_OK)
+                else :
+                    response = {
+                            "status": status.HTTP_401_UNAUTHORIZED,
+                            "message": "Invalid Email or Password",
+                            }
+                    return Response(response, status = status.HTTP_401_UNAUTHORIZED)
+        response = {
+                "status": status.HTTP_400_BAD_REQUEST,
+                "message": "bad request",
+                "data": serializer.errors
+                }
+        return Response(response, status = status.HTTP_400_BAD_REQUEST)
         
 
 class PasswordMixinView(ListModelMixin,CreateModelMixin,GenericAPIView):
@@ -109,5 +116,6 @@ class PasswordMixinView(ListModelMixin,CreateModelMixin,GenericAPIView):
     def post(self,request):
         self.create(request)
         return Response(data={"message":"success","status":200},status=200)
+    
         
         

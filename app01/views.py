@@ -21,6 +21,13 @@ from django.contrib.auth import authenticate
 from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
 # Create your views here.
+import csv
+from django.http import HttpResponse
+import pandas as pd
+from io import BytesIO
+from django.core.exceptions import ValidationError
+from rest_framework import status
+from rest_framework.response import Response
 
 
 from .models import Student
@@ -117,5 +124,17 @@ class PasswordMixinView(ListModelMixin,CreateModelMixin,GenericAPIView):
         self.create(request)
         return Response(data={"message":"success","status":200},status=200)
     
-        
-        
+@api_view(["POST"])
+def import_csv(request):
+    csv_file = request.FILES['csv_file']
+    print(csv_file)
+    decoded_file = csv_file.read().decode('utf-8').splitlines()
+    print(decoded_file)
+    reader = list(csv.DictReader(decoded_file))
+    serializer = StudentSerializer(data=reader, many=True) # create a new serializer instance with the data from the CSV file
+    if serializer.is_valid(): # validate the data using the serializer
+        serializer.save() # save the validated data to the database using the serializer
+        return Response(serializer.data, status=status.HTTP_201_CREATED) # return a JSON response with the saved data and HTTP status code 201 Created
+    else: # handle any validation errors that occurred during validation/saving process
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # return an error response with the validation error messages and HTTP status code 400 Bad Request 
+    

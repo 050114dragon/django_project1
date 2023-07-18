@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 import datetime
+from datetime import timedelta
 
 
 
@@ -162,15 +163,12 @@ LOGGING = {
     }
 }
 
-JWT_AUTH = {
-    # 指明token的有效期
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(minutes=60),
-    # 允许刷新
-    'JWT_ALLOW_REFRESH': True,
-    # JWT头
-    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-    # 'JWT_SECRET_KEY': "emlYhMkNU38jXSRQdz7BCZFWxJr6DyaP",
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=10),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
+
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,

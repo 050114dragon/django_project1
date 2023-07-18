@@ -5,6 +5,7 @@ from app01.models import Password
 from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import validators
+from app01.models import Notes
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -41,4 +42,10 @@ class PasswordSerializer(serializers.ModelSerializer):
             )
         else:
             return value
+        
+               
+class NotesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notes
+        exclude =['user',]         
             

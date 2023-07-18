@@ -38,6 +38,10 @@ from serializer import ImagetestSerializer
 from rest_framework import status
 from serializer import LoginSerializer
 from serializer import PasswordSerializer
+from .models import Notes
+from django.views.generic import CreateView
+from serializer import NotesSerializer
+
 
 
 class StudentPagination(PageNumberPagination):
@@ -112,8 +116,7 @@ class LoginAPIView(APIView):
                 "message": "bad request",
                 "data": serializer.errors
                 }
-        return Response(response, status = status.HTTP_400_BAD_REQUEST)
-        
+        return Response(response, status = status.HTTP_400_BAD_REQUEST)   
 
 class PasswordMixinView(ListModelMixin,CreateModelMixin,GenericAPIView):
     queryset = Password.objects.all()
@@ -138,3 +141,16 @@ def import_csv(request):
     else: # handle any validation errors that occurred during validation/saving process
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # return an error response with the validation error messages and HTTP status code 400 Bad Request 
     
+
+class NotesAPIview(APIView):
+    permission_classes=[IsAuthenticated,]
+    def get(self, request, format=None):
+        notes = Notes.objects.filter(user=request.user)
+        serializer = NotesSerializer(notes, many=True)
+        return Response(serializer.data)
+    def post(self, request, format=None):
+        serializer = NotesSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 

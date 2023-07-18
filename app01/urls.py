@@ -9,6 +9,7 @@ urlpatterns = [
     path(r"login/",view=views.LoginAPIView.as_view(),name="LoginAPIView"),
     path(r"password/",view=views.PasswordMixinView.as_view(),name="PasswordMixinView"),
     path(r"import_csv/",view=views.import_csv,name="import_csv"),
+    path(r"NotesAPIview/",view=views.NotesAPIview.as_view(),name="NotesAPIview"),
 ]
 
 

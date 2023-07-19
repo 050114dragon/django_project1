@@ -47,5 +47,5 @@ class PasswordSerializer(serializers.ModelSerializer):
 class NotesSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notes
-        exclude =['user',]         
+        fields = ["title","text","user"]     
             

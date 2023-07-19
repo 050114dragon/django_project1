@@ -31,5 +31,6 @@ class Notes(models.Model):
     text = models.TextField()
     user = models.ForeignKey(
             User, 
-            on_delete=models.CASCADE)     
+            on_delete=models.CASCADE,
+            to_field="username")     
 

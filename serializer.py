@@ -43,9 +43,16 @@ class PasswordSerializer(serializers.ModelSerializer):
         else:
             return value
         
-               
-class NotesSerializer(serializers.ModelSerializer):
+class NotesGetSerializer(serializers.ModelSerializer):
+    creater = serializers.SerializerMethodField()
     class Meta:
         model = Notes
-        fields = ["title","text","user"]     
+        fields = ["title","text","user","creater"]
+    def get_creater(self,obj):
+        return obj.user.username
+               
+class NotesPostSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Notes
+        fields = ["title","text"]          
             

@@ -29,8 +29,9 @@ class Password(models.Model):
 class Notes(models.Model):
     title = models.CharField(max_length=200)
     text = models.TextField()
+    price = models.IntegerField(blank=True,null=True)
     user = models.ForeignKey(
-            User, 
+            User,
             on_delete=models.CASCADE,
-            to_field="username")     
+            name = "user")   
 

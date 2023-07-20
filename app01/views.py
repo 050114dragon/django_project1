@@ -40,7 +40,9 @@ from serializer import LoginSerializer
 from serializer import PasswordSerializer
 from .models import Notes
 from django.views.generic import CreateView
-from serializer import NotesSerializer
+from serializer import NotesPostSerializer
+from serializer import NotesGetSerializer
+from rest_framework.serializers import ListSerializer
 
 
 
@@ -140,17 +142,30 @@ def import_csv(request):
         return Response(serializer.data, status=status.HTTP_201_CREATED) # return a JSON response with the saved data and HTTP status code 201 Created
     else: # handle any validation errors that occurred during validation/saving process
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # return an error response with the validation error messages and HTTP status code 400 Bad Request 
-    
+
 
 class NotesAPIview(APIView):
+    """
+    get和post使用不同的序列化器,
+    get可以返回在数据库不存在的衍生字段
+    post可以设置外键的值
+    """
     permission_classes=[IsAuthenticated,]
     def get(self, request, format=None):
         notes = Notes.objects.filter(user=request.user)
-        serializer = NotesSerializer(notes, many=True)
-        return Response(serializer.data)
+        serializer = NotesGetSerializer(notes, many=True)
+        return Response(data={"data":serializer.data,"message": "success","status":200},status=status.HTTP_200_OK)
     def post(self, request, format=None):
-        serializer = NotesSerializer(data=request.data)
+        serializer = NotesPostSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) 
+            serializer.save(user=User.objects.get(username=self.request.user))
+            # user这样的外键的值可以通过user=objects.get(username=self.request.user)这样获取，外键的取值必须是一个user对象
+            # 序列化时外键不包含在fields中
+            # 其他普通字段如果不在request.data中，也可能通过其他方式设置，比如creater=User.objects.get(username=self.request.user).username
+            # 序列化时其他普通字段需要在fields中
+            return Response(data={"data":serializer.data,"message": "success","status":201},status=status.HTTP_201_CREATED)
+        return Response(data={"data":serializer.errors,"message": "success","status":201},status=status.HTTP_201_CREATED)
+    
+    
+    
+    

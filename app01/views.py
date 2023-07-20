@@ -40,9 +40,11 @@ from serializer import LoginSerializer
 from serializer import PasswordSerializer
 from .models import Notes
 from django.views.generic import CreateView
+from rest_framework.serializers import ListSerializer
 from serializer import NotesPostSerializer
 from serializer import NotesGetSerializer
-from rest_framework.serializers import ListSerializer
+from serializer import EmployeeSerializer
+
 
 
 
@@ -166,6 +168,11 @@ class NotesAPIview(APIView):
             return Response(data={"data":serializer.data,"message": "success","status":201},status=status.HTTP_201_CREATED)
         return Response(data={"data":serializer.errors,"message": "success","status":201},status=status.HTTP_201_CREATED)
     
-    
-    
-    
+class EmployeeView(APIView):
+    def post(self,request,format=None):
+        serializer = EmployeeSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={"data":serializer.data,"message": "success","status":201},status=status.HTTP_201_CREATED)
+        else:
+            return Response(data={"data":serializer.errors,"message": "failed","status":400},status=status.HTTP_201_CREATED)

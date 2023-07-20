@@ -10,6 +10,7 @@ urlpatterns = [
     path(r"password/",view=views.PasswordMixinView.as_view(),name="PasswordMixinView"),
     path(r"import_csv/",view=views.import_csv,name="import_csv"),
     path(r"NotesAPIview/",view=views.NotesAPIview.as_view(),name="NotesAPIview"),
+    path(r"employee/",view=views.EmployeeView.as_view(),name="EmployeeView"),  #单个外键序列化测试
 ]
 
 

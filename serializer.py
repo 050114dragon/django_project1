@@ -6,6 +6,8 @@ from django.contrib.auth.models import User
 from django.contrib.auth.hashers import make_password
 from rest_framework import validators
 from app01.models import Notes
+from app01.models import Company
+from app01.models import Employee
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -54,5 +56,25 @@ class NotesGetSerializer(serializers.ModelSerializer):
 class NotesPostSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notes
-        fields = ["title","text"]          
+        fields = ["title","text"]   
+        
+        
+
+class EmployeeSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=50,
+                                 validators=[validators.UniqueValidator(
+                                     queryset=Employee.objects.all(),
+                                     message="雇员名已存在")]
+                                 )
+    company = serializers.PrimaryKeyRelatedField(queryset=Company.objects.all())
+    class Meta:
+        model = Employee
+        fields = '__all__'
+    def create(self, validated_data):
+        company_obj = validated_data.pop('company')  #返回是外键对应model的实例
+        # company = Company.objects.get(id=company_obj.id)  #company_obj在函数中的值为model实例或者model的_str__的返回值
+        employee = Employee.objects.create(company=company_obj, **validated_data)  #返回值含有外键所在model的id或者__str__的返回值
+        return employee
+    #还可增加update方法
+           
             

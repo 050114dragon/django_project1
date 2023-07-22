@@ -44,6 +44,9 @@ from rest_framework.serializers import ListSerializer
 from serializer import NotesPostSerializer
 from serializer import NotesGetSerializer
 from serializer import EmployeeSerializer
+from serializer import BabySerializer
+from .models import Baby
+from .models import Toy
 
 
 
@@ -175,4 +178,15 @@ class EmployeeView(APIView):
             serializer.save()
             return Response(data={"data":serializer.data,"message": "success","status":201},status=status.HTTP_201_CREATED)
         else:
-            return Response(data={"data":serializer.errors,"message": "failed","status":400},status=status.HTTP_201_CREATED)
+            return Response(data={"data":serializer.errors,"message": "failed","status":400})
+        
+        
+class BabyView(APIView):
+    def post(self,request,format=None):
+        serializer = BabySerializer(data=request.data)
+        print(serializer)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={"data":serializer.data,"message": "success","status":201},status=status.HTTP_201_CREATED)
+        else:
+            return Response(data={"data":serializer.errors,"message": "failed","status":400},status=status.HTTP_201_CREATED)        

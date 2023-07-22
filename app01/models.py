@@ -51,3 +51,16 @@ class Employee(models.Model):
     name = models.CharField(max_length=50)
     company = models.ForeignKey("Company", on_delete=models.CASCADE)
 
+
+class Toy(models.Model):
+    name = models.CharField(max_length=50)
+    def __str__(self):
+        return self.name
+
+class Baby(models.Model):
+    name = models.CharField(max_length=50)
+    age = models.IntegerField()
+    toy = models.ManyToManyField(to="Toy",related_name="baby",db_constraint=False)
+    def __str__(self):
+        return self.name
+    

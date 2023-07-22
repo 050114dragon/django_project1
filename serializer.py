@@ -8,6 +8,8 @@ from rest_framework import validators
 from app01.models import Notes
 from app01.models import Company
 from app01.models import Employee
+from app01.models import Baby
+from app01.models import Toy
 
 
 class StudentSerializer(serializers.ModelSerializer):
@@ -76,5 +78,31 @@ class EmployeeSerializer(serializers.ModelSerializer):
         employee = Employee.objects.create(company=company_obj, **validated_data)  #返回值含有外键所在model的id或者__str__的返回值
         return employee
     #还可增加update方法
-           
-            
+
+
+class BabySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Baby    
+        fields = ["name","age","toy"]
+    def validate_toy(self,value):
+        """
+        验证通过返回value，否则返回ValidationError
+        """
+        print("value",value)
+        print(len(value))
+        if len(value) < 2:
+            raise validators.ValidationError("每个baby至少分配二个toy")
+        return value    
+    def validate(self, attrs):
+        """
+        attrs为request.data,如果验证通过，返回attrs，否则抛出ValidationError("baby和toys需联合唯一")
+        """
+        name = attrs.get("name")
+        toys = attrs.get("toy") #返回含一个或者多个实例的列表
+        for toy in toys:
+            print("hello",toy,dir(toy))
+            print("hello2",name,toy.id)
+            if Baby.objects.filter(name=name,toy=toy.id):
+                raise validators.ValidationError("baby和toys需联合唯一")
+        return attrs
+

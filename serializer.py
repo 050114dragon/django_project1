@@ -56,10 +56,12 @@ class NotesGetSerializer(serializers.ModelSerializer):
         return obj.user.username
                
 class NotesPostSerializer(serializers.ModelSerializer):
+    price = serializers.SerializerMethodField()
     class Meta:
         model = Notes
-        fields = ["title","text"]   
-        
+        fields = ["title","text","price"]
+    def get_price(self,obj):
+        return len(obj.text) 
         
 
 class EmployeeSerializer(serializers.ModelSerializer):

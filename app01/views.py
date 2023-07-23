@@ -28,6 +28,8 @@ from io import BytesIO
 from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework import serializers
+# from rest_framework import request
 
 
 from .models import Student
@@ -157,12 +159,13 @@ class NotesAPIview(APIView):
     """
     permission_classes=[IsAuthenticated,]
     def get(self, request, format=None):
-        notes = Notes.objects.filter(user=request.user)
+        notes = Notes.objects.filter(user=request.user.id)
         serializer = NotesGetSerializer(notes, many=True)
         return Response(data={"data":serializer.data,"message": "success","status":200},status=status.HTTP_200_OK)
     def post(self, request, format=None):
         serializer = NotesPostSerializer(data=request.data)
         if serializer.is_valid():
+            # serializer.save()
             serializer.save(user=User.objects.get(username=self.request.user))
             # user这样的外键的值可以通过user=objects.get(username=self.request.user)这样获取，外键的取值必须是一个user对象
             # 序列化时外键不包含在fields中

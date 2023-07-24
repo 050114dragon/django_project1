@@ -12,7 +12,9 @@ urlpatterns = [
     path(r"NotesAPIview/",view=views.NotesAPIview.as_view(),name="NotesAPIview"),  #当前登录用户作为user外键
     path(r"employee/",view=views.EmployeeView.as_view(),name="EmployeeView"),  #一对多外键序列化测试
     path(r"babyview/",view=views.BabyView.as_view(),name="BabyView"),  #多对多外键序列化测试
-    path(r"article/list/",view=views.ArticleGenericAPIView.as_view(),name="article_list"),  #genericAPIView，排序，过滤，搜索功能
+    path(r"article/list/mixin/",view=views.ArticleListMixin.as_view(),name="ArticleList"),  #genericAPIView，排序，过滤，搜索功能
+    path(r"article/create/",view=views.ArticleCreate.as_view(),name="article_create"),  #genericAPIView，排序，过滤，搜索功能
+    path(r"article/list/genericapiview/",view=views.ArticleListGenericAPIView.as_view(),name="ArticleListGenericAPIView"),  #genericAPIView，排序，过滤，搜索功能ArticleAPIView
 ]
 
 

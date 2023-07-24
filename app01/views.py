@@ -203,7 +203,15 @@ class BabyView(APIView):
             return Response(data={"data":serializer.errors,"message": "failed","status":400},status=status.HTTP_201_CREATED) 
         
         
-class ArticleGenericAPIView(GenericAPIView,ListModelMixin):
+class ArticleListMixin(GenericAPIView,ListModelMixin):
+    """
+    GenericAPIView和ModelMixin适合搭配使用，
+    GenericAPIView负责query,serializer,pagination,filter等
+    ModelMixin负责业务逻辑，响应等
+    需要自定义get，post等方法,apiview的dispatch方法根据request的请求方法调用get,post等方法
+    get,post等方法中调用ModelMixin中的list,create等方法，最终返回response
+    请求失败时返回的字典中含有detail字段，提示失败原因
+    """
     serializer_class = ArticleSerialize
     queryset = Article.objects.all()
     pagination_class = MyDefaultPagination
@@ -213,10 +221,47 @@ class ArticleGenericAPIView(GenericAPIView,ListModelMixin):
     # # filter_backends = [filters.SearchFilter] #对指定字段进行全局搜索，比如?search=
     # filter_backends = [filters.OrderingFilter,filters.SearchFilter]  #依据指定字段进行排序，如ordering=-name,author
     # ordering_fields = "__all__"
-    #ordering = ['username'] #指定默认的排序的一个或者多个排序字段
+    #ordering = ['username'] #指定默认排序的一个或者多个字段
     filter_backends = [filters.OrderingFilter,filters.SearchFilter] #同时进行搜索和排序
     search_fields = ["name","author","text"]
     ordering_fields = "__all__"
     def get(self,request,*args,**kwargs):
         return self.list(request,*args,**kwargs)
-                   
+    
+class ArticleListGenericAPIView(GenericAPIView):
+    """
+    测试仅GenericAPIView是否能够进行分页等
+    """
+    serializer_class = ArticleSerialize
+    queryset = Article.objects.all()
+    pagination_class = MyDefaultPagination
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_fields = "__all__" #对指定字段进行过滤，比如?name=
+    # filter_backends = [filters.SearchFilter]
+    # # filter_backends = [filters.SearchFilter] #对指定字段进行全局搜索，比如?search=
+    # filter_backends = [filters.OrderingFilter,filters.SearchFilter]  #依据指定字段进行排序，如ordering=-name,author
+    # ordering_fields = "__all__"
+    #ordering = ['username'] #指定默认排序的一个或者多个字段
+    filter_backends = [filters.OrderingFilter,filters.SearchFilter] #同时进行搜索和排序
+    search_fields = ["name","author","text"]
+    ordering_fields = "__all__"
+    def get(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)  #如果未设置分页，则返回None，如果正确分页，则返回page，否则返回错误response
+        #分页
+        if page is not None: 
+            serializer = self.get_serializer(page, many=True)            
+            return self.get_paginated_response(serializer.data)    
+        #未分页
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)     
+
+class ArticleCreate(GenericAPIView,CreateModelMixin):
+    """
+    新增一个实例，新增失败时，返回字典的键可能含有失败的字段，提示该字段失败的原因
+    """
+    questset = Article.objects.all()
+    serializer_class = ArticleSerialize
+    def post(self,request,*args,**kwargs):
+        return self.create(request,*args,**kwargs)
+               

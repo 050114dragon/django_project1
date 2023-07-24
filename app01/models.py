@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django import forms
+import time
 # Create your models here.
 
 class Student(models.Model):
@@ -61,6 +62,15 @@ class Baby(models.Model):
     name = models.CharField(max_length=50)
     age = models.IntegerField()
     toy = models.ManyToManyField(to="Toy",related_name="baby",db_constraint=False)
+    def __str__(self):
+        return self.name
+    
+class Article(models.Model):
+    name = models.CharField(max_length=50)
+    author = models.CharField(max_length=50)
+    text = models.CharField(max_length=500)
+    create_time = models.DateTimeField(auto_now_add=True)
+    update_time = models.DateTimeField(auto_now=True)
     def __str__(self):
         return self.name
     

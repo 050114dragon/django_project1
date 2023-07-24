@@ -29,7 +29,9 @@ from django.core.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import serializers
-# from rest_framework import request
+import time
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 
 from .models import Student
@@ -49,9 +51,15 @@ from serializer import EmployeeSerializer
 from serializer import BabySerializer
 from .models import Baby
 from .models import Toy
+from .models import Article
+from serializer import ArticleSerialize
 
 
-
+class MyDefaultPagination(PageNumberPagination):
+    page_size = 2
+    max_page_size = 50
+    page_query_param = "page"
+    page_size_query_param = "page_size"
 
 class StudentPagination(PageNumberPagination):
     page_size = 2
@@ -192,4 +200,23 @@ class BabyView(APIView):
             serializer.save()
             return Response(data={"data":serializer.data,"message": "success","status":201},status=status.HTTP_201_CREATED)
         else:
-            return Response(data={"data":serializer.errors,"message": "failed","status":400},status=status.HTTP_201_CREATED)        
+            return Response(data={"data":serializer.errors,"message": "failed","status":400},status=status.HTTP_201_CREATED) 
+        
+        
+class ArticleGenericAPIView(GenericAPIView,ListModelMixin):
+    serializer_class = ArticleSerialize
+    queryset = Article.objects.all()
+    pagination_class = MyDefaultPagination
+    # filter_backends = [DjangoFilterBackend]
+    # filterset_fields = "__all__" #对指定字段进行过滤，比如?name=
+    # filter_backends = [filters.SearchFilter]
+    # # filter_backends = [filters.SearchFilter] #对指定字段进行全局搜索，比如?search=
+    # filter_backends = [filters.OrderingFilter,filters.SearchFilter]  #依据指定字段进行排序，如ordering=-name,author
+    # ordering_fields = "__all__"
+    #ordering = ['username'] #指定默认的排序的一个或者多个排序字段
+    filter_backends = [filters.OrderingFilter,filters.SearchFilter] #同时进行搜索和排序
+    search_fields = ["name","author","text"]
+    ordering_fields = "__all__"
+    def get(self,request,*args,**kwargs):
+        return self.list(request,*args,**kwargs)
+                   

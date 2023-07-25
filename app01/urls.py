@@ -2,7 +2,7 @@ from django.urls import path
 from . import views
 from rest_framework.routers import DefaultRouter
 
-
+from .views import CaptchaAPIView,VerifyCaptchaAPIView
 
 urlpatterns = [
     path(r"student_list/",view=views.index,name="app01_index"),
@@ -16,6 +16,8 @@ urlpatterns = [
     path(r"article/create/",view=views.ArticleCreate.as_view(),name="article_create"),  #genericAPIView，排序，过滤，搜索功能
     path(r"article/list/genericapiview/",view=views.ArticleListGenericAPIView.as_view(),name="ArticleListGenericAPIView"),  #genericAPIView，排序，过滤，搜索功能ArticleAPIView
     path(r"register/",view=views.UserRegisterAPIView.as_view(),name="UserRegisterAPIView"),  
+    path(r'generate_captcha/', CaptchaAPIView.as_view(), name='generate_captcha'),
+    path(r'verify_captcha/', VerifyCaptchaAPIView.as_view(), name='verify_captcha'),
 ]
 
 

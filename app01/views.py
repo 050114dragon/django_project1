@@ -22,6 +22,7 @@ from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.permissions import IsAdminUser
+from rest_framework.authentication import SessionAuthentication
 # Create your views here.
 import csv
 from django.http import HttpResponse
@@ -34,6 +35,11 @@ from rest_framework import serializers
 import time
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters
+from PIL import Image, ImageDraw, ImageFont
+from django.http import HttpResponseBadRequest
+from django.contrib.sessions.backends.db import SessionStore
+import random
+from io import BytesIO
 
 
 from .models import Student
@@ -283,4 +289,76 @@ class UserRegisterAPIView(APIView):
             return Response(data={"messgae":"注册成功","status":200})
         else:
             return Response(data={"messgae":"注册失败","status":400})
+
+
+class CaptchaAPIView(APIView):
+    """
+    生成图片验证码
+    """
+    authentication_classes = [SessionAuthentication]
+    permission_classes = [AllowAny]
+    def get(self, request):
+        # 生成四位随机验证码
+        length=int(request.GET.get('length',4))
+        captcha = ''.join(random.choices('0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', k=length))
+        # 创建图片对象，设置字体和字体大小
+        img = Image.new('RGB', (150, 50), color=(255, 255, 255))
+        draw = ImageDraw.Draw(img)
+        font = ImageFont.truetype("arial.ttf", 35)
+        # 在图片上绘制验证码
+        draw.text((10, 10), captcha, font=font, fill=(random.randint(0,150), random.randint(0,255), random.randint(0,255)))
+        # 绘制干扰线
+        for _ in range(10):
+            x1 = random.randint(0, 150)
+            y1 = random.randint(0, 50)
+            x2 = random.randint(0, 150)
+            y2 = random.randint(0, 50)
+            draw.line((x1, y1, x2, y2), fill=(0, 0, 0))
+        buffer = BytesIO()
+        img.save(buffer, format='PNG')
+        # 把验证码存储在session中，以便后续验证
+        request.session['captcha'] = captcha
+        request.session.set_expiry(1200)
+        print("hello",captcha)
+        data = buffer.getvalue()
+        # 输出图片
+        response = HttpResponse(data,content_type="image/png")
+        return response 
+
+class VerifyCaptchaAPIView(APIView):
+    """
+    对图片验证码进行验证
+    """
+    authentication_classes = []
+    permission_classes = [AllowAny]
+    def post(self, request):
+        expected_captcha = request.session.get('captcha')
+        received_captcha = request.data.get('captcha')
+        if not expected_captcha or not received_captcha or expected_captcha.lower() != received_captcha.lower():
+            return Response("验证码错误")
+        serializer = LoginSerializer(data = request.data)
+        if serializer.is_valid():
+                username = serializer.validated_data["username"]
+                password = serializer.validated_data["password"]
+                user = authenticate(request, username=username, password=password)
+                if user is not None:
+                    res_data = get_tokens_for_user(User.objects.get(username=username))
+                    response = {
+                            "status": status.HTTP_200_OK,
+                            "message": "success",
+                            "data": res_data
+                            }
+                    return Response(response, status = status.HTTP_200_OK)
+                else :
+                    response = {
+                            "status": status.HTTP_401_UNAUTHORIZED,
+                            "message": "Invalid Email or Password",
+                            }
+                    return Response(response, status = status.HTTP_401_UNAUTHORIZED)
+        response = {
+                "status": status.HTTP_400_BAD_REQUEST,
+                "message": "bad request",
+                "data": serializer.errors
+                }
+        return Response(response, status = status.HTTP_400_BAD_REQUEST)   
                

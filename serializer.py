@@ -28,10 +28,17 @@ class ImagetestSerializer(serializers.ModelSerializer):
         fields = ["id","name","image"]
         
 class LoginSerializer(serializers.ModelSerializer):
-    username = serializers.CharField()
+    username = serializers.CharField(min_length=4)
     class Meta:
             model = User
             fields = ['username','password']
+            extra_kwargs = {
+                    'password': {
+                        'max_length': 20,
+                        'min_length': 5,
+                        'write_only': True
+                    }
+                    }
             
 class PasswordSerializer(serializers.ModelSerializer):
     name = serializers.CharField()

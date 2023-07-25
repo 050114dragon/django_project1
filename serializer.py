@@ -109,4 +109,35 @@ class ArticleSerialize(serializers.ModelSerializer):
     class Meta:
         model =   Article
         fields = "__all__"
+    
 
+class UserRegisterSerializer(serializers.ModelSerializer):
+    '''
+    用户注册的序列化器
+    '''
+    class Meta:
+        model = User
+        fields = ["username","password","email"]
+        extra_kwargs = {
+            'username': {
+                'max_length': 20,
+                'min_length': 5
+            },
+            'password': {
+                'max_length': 20,
+                'min_length': 8,
+                'write_only': True
+            },
+        }
+    def validate_password(self,value):
+        if value != self.initial_data['password2']:
+            raise serializers.ValidationError(
+                'Passwords do not match'
+            )
+        else:
+            return value
+    def create(self, validated_data):
+        '''重写create方法实现，将密码加密后保存'''
+        # 将密码加密后保存
+        user = User.objects.create_user(**validated_data)
+        return user

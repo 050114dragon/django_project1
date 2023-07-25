@@ -20,6 +20,8 @@ from django.http.response import  JsonResponse
 from django.contrib.auth import authenticate
 from rest_framework import permissions
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAdminUser
 # Create your views here.
 import csv
 from django.http import HttpResponse
@@ -53,6 +55,7 @@ from .models import Baby
 from .models import Toy
 from .models import Article
 from serializer import ArticleSerialize
+from serializer import UserRegisterSerializer
 
 
 class MyDefaultPagination(PageNumberPagination):
@@ -264,4 +267,20 @@ class ArticleCreate(GenericAPIView,CreateModelMixin):
     serializer_class = ArticleSerialize
     def post(self,request,*args,**kwargs):
         return self.create(request,*args,**kwargs)
+
+
+
+class UserRegisterAPIView(APIView):
+    """
+    用户注册功能
+    """
+    authentication_classes = []       #任何人均可注册，需去除token验证
+    #permission_classes = [IsAdminUser] #设置仅管理员能够进行用户注册
+    def post(self,request):    
+        serializer = UserRegisterSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(data={"messgae":"注册成功","status":200})
+        else:
+            return Response(data={"messgae":"注册失败","status":400})
                

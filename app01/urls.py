@@ -15,6 +15,7 @@ urlpatterns = [
     path(r"article/list/mixin/",view=views.ArticleListMixin.as_view(),name="ArticleList"),  #genericAPIView，排序，过滤，搜索功能
     path(r"article/create/",view=views.ArticleCreate.as_view(),name="article_create"),  #genericAPIView，排序，过滤，搜索功能
     path(r"article/list/genericapiview/",view=views.ArticleListGenericAPIView.as_view(),name="ArticleListGenericAPIView"),  #genericAPIView，排序，过滤，搜索功能ArticleAPIView
+    path(r"register/",view=views.UserRegisterAPIView.as_view(),name="UserRegisterAPIView"),  
 ]
 
 
